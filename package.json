@@ -1,0 +1,7 @@
+{
+  "name": "choco-nnova",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Landing de CHOCO, secadero de cacao de Nnova S.A.S"
+}

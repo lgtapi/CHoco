@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHOCO · Nnova S.A.S</title>
+<meta name="description" content="CHOCO, el secadero de cacao de Nnova S.A.S que se cubre solo cuando llueve. Lecturas en vivo de lluvia, humedad y temperatura.">
+<link rel="icon" type="image/png" href="assets/choco-icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --papel: #ffffff;
+    --tinta: #000000;
+    --texto: #2a2421;
+    --suave: #6f6560;
+    --linea: #e4e0dd;
+    --gris: #f3f1ef;
+    --cacao: #4b2a1a;
+    --cacao-claro: #8a5a3b;
+    --mazorca: #e8a317;
+    --lluvia: #2c6e8f;
+    --cielo-sol: #fdf3d9;
+    --cielo-lluvia: #dde8ee;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--papel);
+    color: var(--texto);
+    font: 400 17px/1.6 "Instrument Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--mazorca); outline-offset: 3px; border-radius: 4px; }
+  .envoltura { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+  /* Encabezado */
+  .cabecera { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .cabecera img { height: 76px; width: auto; display: block; }
+  .cabecera nav { display: flex; gap: 28px; font-weight: 500; font-size: 15px; }
+  .cabecera nav a { text-decoration: none; color: var(--suave); }
+  .cabecera nav a:hover { color: var(--tinta); }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 56px;
+    align-items: center;
+    padding: 48px 0 88px;
+  }
+  .hero .marca {
+    display: block;
+    width: clamp(200px, 24vw, 280px);
+    aspect-ratio: 1;
+    background: #000;
+    border-radius: 32px;
+    margin: 0 0 32px;
+    overflow: hidden;
+  }
+  .hero .marca img { width: 100%; height: 100%; display: block; }
+  .hero h1 {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 600;
+    font-size: clamp(26px, 3vw, 36px);
+    line-height: 1.15;
+    color: var(--tinta);
+    margin: 0 0 18px;
+    max-width: 17ch;
+  }
+  .hero p { margin: 0 0 32px; color: var(--suave); max-width: 46ch; }
+  .boton {
+    display: inline-block;
+    background: var(--tinta);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 0;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .boton:hover { background: var(--cacao); }
+
+  /* Escena del secadero */
+  .escena { margin: 0; }
+  .escena svg { width: 100%; height: auto; display: block; border-radius: 28px; }
+  .escena figcaption {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 16px; font-weight: 500; color: var(--tinta);
+  }
+  .punto { width: 12px; height: 12px; border-radius: 50%; background: var(--mazorca); flex: none; }
+  .llueve .punto { background: var(--lluvia); }
+  #cielo { transition: fill .8s ease; }
+  .llueve #cielo { fill: var(--cielo-lluvia); }
+  #techo { transform-origin: 120px 132px; transform: rotate(-62deg); transition: transform 1.4s cubic-bezier(.6,.05,.2,1); }
+  .llueve #techo { transform: rotate(0deg); }
+  #sol { transition: opacity .8s; }
+  .llueve #sol { opacity: 0; }
+  #gotas, #nube { opacity: 0; transition: opacity .8s; }
+  .llueve #gotas, .llueve #nube { opacity: 1; }
+  .gota { animation: caer 1s linear infinite; }
+  @keyframes caer { from { transform: translateY(-30px); } to { transform: translateY(70px); } }
+
+  /* Lecturas */
+  .seccion { padding: 88px 0; border-top: 1px solid var(--linea); }
+  .seccion h2 {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 1.05;
+    color: var(--tinta);
+    margin: 0 0 14px;
+  }
+  .seccion .intro { color: var(--suave); max-width: 58ch; margin: 0 0 44px; }
+  .estado {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+    background: var(--gris); border-radius: 14px; padding: 14px 18px; margin-bottom: 40px;
+    font-size: 15px;
+  }
+  .estado .vivo { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--tinta); }
+  .estado .vivo i { width: 9px; height: 9px; border-radius: 50%; background: #3d9a5b; }
+  .estado.demo .vivo i { background: var(--mazorca); }
+  .estado.sin-senal .vivo i { background: #b5473a; }
+  .estado .detalle { color: var(--suave); flex: 1; min-width: 220px; }
+  .estado button {
+    font: inherit; font-weight: 600; background: #fff; border: 1px solid var(--linea);
+    border-radius: 999px; padding: 8px 16px; cursor: pointer; color: var(--tinta);
+  }
+  .estado button:hover { border-color: var(--tinta); }
+
+  .lecturas { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .lectura { padding: 4px 32px; border-left: 1px solid var(--linea); }
+  .lectura:first-child { padding-left: 0; border-left: 0; }
+  .lectura h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: var(--suave); }
+  .valor {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-variation-settings: "wdth" 85;
+    font-weight: 700;
+    font-size: clamp(54px, 6vw, 80px);
+    line-height: 1;
+    color: var(--tinta);
+    font-variant-numeric: tabular-nums;
+  }
+  .valor small { font-size: .38em; font-weight: 600; color: var(--suave); margin-left: 4px; }
+  .lectura .nota { font-size: 15px; color: var(--suave); margin: 10px 0 16px; min-height: 1.6em; }
+  .lectura svg { width: 100%; height: 48px; display: block; overflow: visible; }
+
+  /* Funcionamiento */
+  .pasos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; counter-reset: paso; }
+  .pasos li { counter-increment: paso; }
+  .pasos li::before {
+    content: counter(paso);
+    display: grid; place-items: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--cacao); color: #fff;
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 20px;
+    margin-bottom: 18px;
+  }
+  .pasos h3 { margin: 0 0 8px; font-size: 19px; color: var(--tinta); }
+  .pasos p { margin: 0; color: var(--suave); font-size: 16px; }
+
+  /* Componentes */
+  .tabla { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .tabla th { text-align: left; font-weight: 600; color: var(--suave); padding: 0 16px 12px 0; border-bottom: 2px solid var(--tinta); }
+  .tabla td { padding: 16px 16px 16px 0; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  .tabla td:first-child { font-weight: 600; color: var(--tinta); white-space: nowrap; }
+  .tabla td:nth-child(2) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* Pie */
+  .pie { border-top: 1px solid var(--linea); padding: 56px 0 64px; }
+  .pie .envoltura { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
+  .pie img { height: 84px; width: auto; display: block; }
+  .lema { display: flex; align-items: center; gap: 2px; font-weight: 600; color: var(--tinta); font-size: 18px; }
+  .lema img { height: 30px; }
+  .pie small { display: block; color: var(--suave); margin-top: 8px; font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding-top: 40px; }
+    .lecturas { grid-template-columns: 1fr; }
+    .lectura, .lectura:first-child { padding: 28px 0; border-left: 0; border-top: 1px solid var(--linea); }
+    .lectura:first-child { border-top: 0; padding-top: 0; }
+    .pasos { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .envoltura { padding: 0 16px; }
+    .cabecera nav { display: none; }
+    .cabecera img { height: 60px; }
+    .pasos { grid-template-columns: 1fr; }
+    .seccion { padding: 64px 0; }
+    .tabla thead { display: none; }
+    .tabla tr { display: block; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+    .tabla td { display: block; border: 0; padding: 2px 0; white-space: normal; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    #techo, #cielo, #sol, #gotas, #nube { transition: none; }
+    .gota { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="envoltura cabecera">
+  <a href="#" aria-label="Nnova S.A.S, inicio"><img src="assets/nnova-logo.png" alt="Nnova S.A.S"></a>
+  <nav aria-label="Secciones">
+    <a href="#lecturas">Lecturas</a>
+    <a href="#funcionamiento">Cómo funciona</a>
+    <a href="#componentes">Componentes</a>
+  </nav>
+</header>
+
+<main>
+  <section class="envoltura hero">
+    <div>
+      <div class="marca"><img src="assets/choco-logo.jpg" width="640" height="640" alt="CHOCO"></div>
+      <h1>El secadero de cacao que se cubre solo cuando llueve.</h1>
+      <p>Un sensor detecta las primeras gotas y un servomotor cierra el techo antes de que el grano se moje. Mientras tanto, CHOCO mide la humedad y la temperatura del aire para cuidar cada lote.</p>
+      <a class="boton" href="#lecturas">Ver lecturas en vivo</a>
+    </div>
+
+    <figure class="escena" id="escena">
+      <svg viewBox="0 0 520 380" role="img" aria-labelledby="escena-titulo">
+        <title id="escena-titulo">Secadero de cacao con techo móvil</title>
+        <rect id="cielo" width="520" height="380" fill="var(--cielo-sol)"/>
+        <g id="sol">
+          <circle cx="420" cy="78" r="34" fill="var(--mazorca)"/>
+          <g stroke="var(--mazorca)" stroke-width="5" stroke-linecap="round">
+            <line x1="420" y1="22" x2="420" y2="8"/><line x1="420" y1="134" x2="420" y2="148"/>
+            <line x1="364" y1="78" x2="350" y2="78"/><line x1="476" y1="78" x2="490" y2="78"/>
+            <line x1="380" y1="38" x2="370" y2="28"/><line x1="460" y1="118" x2="470" y2="128"/>
+            <line x1="460" y1="38" x2="470" y2="28"/><line x1="380" y1="118" x2="370" y2="128"/>
+          </g>
+        </g>
+        <g id="nube" fill="#9fb3bf">
+          <ellipse cx="330" cy="64" rx="70" ry="30"/><ellipse cx="390" cy="52" rx="56" ry="34"/><ellipse cx="440" cy="70" rx="48" ry="24"/>
+        </g>
+        <g id="gotas" stroke="var(--lluvia)" stroke-width="3" stroke-linecap="round">
+          <line class="gota" x1="300" y1="100" x2="296" y2="114" style="animation-delay:0s"/>
+          <line class="gota" x1="340" y1="104" x2="336" y2="118" style="animation-delay:.3s"/>
+          <line class="gota" x1="380" y1="98" x2="376" y2="112" style="animation-delay:.6s"/>
+          <line class="gota" x1="420" y1="102" x2="416" y2="116" style="animation-delay:.15s"/>
+          <line class="gota" x1="460" y1="98" x2="456" y2="112" style="animation-delay:.45s"/>
+          <line class="gota" x1="320" y1="120" x2="316" y2="134" style="animation-delay:.75s"/>
+          <line class="gota" x1="400" y1="122" x2="396" y2="136" style="animation-delay:.9s"/>
+          <line class="gota" x1="440" y1="124" x2="436" y2="138" style="animation-delay:.5s"/>
+        </g>
+        <!-- suelo -->
+        <rect y="318" width="520" height="62" fill="#c9b8a6"/>
+        <!-- postes -->
+        <rect x="112" y="132" width="14" height="190" fill="var(--cacao)"/>
+        <rect x="438" y="132" width="14" height="190" fill="var(--cacao)"/>
+        <!-- cama de secado -->
+        <rect x="100" y="250" width="364" height="16" rx="3" fill="var(--cacao)"/>
+        <g fill="var(--cacao-claro)">
+          <ellipse cx="130" cy="244" rx="11" ry="7"/><ellipse cx="154" cy="246" rx="11" ry="7"/><ellipse cx="178" cy="243" rx="11" ry="7"/>
+          <ellipse cx="202" cy="246" rx="11" ry="7"/><ellipse cx="226" cy="243" rx="11" ry="7"/><ellipse cx="250" cy="246" rx="11" ry="7"/>
+          <ellipse cx="274" cy="243" rx="11" ry="7"/><ellipse cx="298" cy="246" rx="11" ry="7"/><ellipse cx="322" cy="243" rx="11" ry="7"/>
+          <ellipse cx="346" cy="246" rx="11" ry="7"/><ellipse cx="370" cy="243" rx="11" ry="7"/><ellipse cx="394" cy="246" rx="11" ry="7"/>
+          <ellipse cx="418" cy="243" rx="11" ry="7"/><ellipse cx="438" cy="246" rx="9" ry="6"/>
+          <ellipse cx="142" cy="236" rx="10" ry="6"/><ellipse cx="190" cy="235" rx="10" ry="6"/><ellipse cx="238" cy="236" rx="10" ry="6"/>
+          <ellipse cx="286" cy="235" rx="10" ry="6"/><ellipse cx="334" cy="236" rx="10" ry="6"/><ellipse cx="382" cy="235" rx="10" ry="6"/>
+        </g>
+        <!-- caja del ESP32 y servo -->
+        <rect x="70" y="150" width="36" height="28" rx="5" fill="var(--tinta)"/>
+        <circle cx="120" cy="132" r="10" fill="var(--tinta)"/>
+        <!-- techo móvil (lo mueve el servo) -->
+        <g id="techo">
+          <rect x="120" y="122" width="336" height="14" rx="4" fill="var(--tinta)"/>
+          <rect x="120" y="136" width="336" height="5" fill="#3b3b3b"/>
+        </g>
+        <circle cx="120" cy="132" r="4" fill="#fff"/>
+      </svg>
+      <figcaption><span class="punto" aria-hidden="true"></span><span id="escena-texto">Sin lluvia: el techo está abierto y el cacao recibe sol.</span></figcaption>
+    </figure>
+  </section>
+
+  <section class="seccion" id="lecturas">
+    <div class="envoltura">
+      <h2>Lecturas del prototipo</h2>
+      <p class="intro">El ESP32 de CHOCO envía sus lecturas por WiFi y esta página se actualiza sola cada pocos segundos. Si no hay internet, también puedes conectarlo por USB a este computador.</p>
+
+      <div class="estado demo" id="estado" aria-live="polite">
+        <span class="vivo"><i aria-hidden="true"></i><span id="estado-titulo">Conectando…</span></span>
+        <span class="detalle" id="estado-detalle">Buscando lecturas del prototipo.</span>
+        <button type="button" id="usb" hidden>Conectar CHOCO por USB</button>
+        <button type="button" id="simular" hidden>Simular lluvia</button>
+      </div>
+
+      <div class="lecturas">
+        <article class="lectura">
+          <h3>Sensor de lluvia</h3>
+          <div class="valor" id="v-lluvia">–</div>
+          <p class="nota" id="n-lluvia">Por encima de 500 se cierra el techo.</p>
+          <svg viewBox="0 0 300 48" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="300" id="umbral-linea" stroke="var(--linea)" stroke-dasharray="4 4"/><polyline id="g-lluvia" fill="none" stroke="var(--lluvia)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
+        </article>
+        <article class="lectura">
+          <h3>Humedad del aire</h3>
+          <div class="valor" id="v-humedad">–<small>%</small></div>
+          <p class="nota" id="n-humedad">Medida con el sensor DHT11.</p>
+          <svg viewBox="0 0 300 48" preserveAspectRatio="none" aria-hidden="true"><polyline id="g-humedad" fill="none" stroke="var(--cacao)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
+        </article>
+        <article class="lectura">
+          <h3>Temperatura del aire</h3>
+          <div class="valor" id="v-temperatura">–<small>°C</small></div>
+          <p class="nota" id="n-temperatura">Medida con el sensor DHT11.</p>
+          <svg viewBox="0 0 300 48" preserveAspectRatio="none" aria-hidden="true"><polyline id="g-temperatura" fill="none" stroke="var(--mazorca)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" id="funcionamiento">
+    <div class="envoltura">
+      <h2>Cómo funciona</h2>
+      <p class="intro">CHOCO repite este ciclo cada segundo, de día y de noche, sin que nadie tenga que estar pendiente del cielo.</p>
+      <ol class="pasos">
+        <li><h3>Mide</h3><p>El sensor de lluvia y el DHT11 leen el agua, la humedad y la temperatura.</p></li>
+        <li><h3>Decide</h3><p>El ESP32 compara la lectura de lluvia con el umbral de 500.</p></li>
+        <li><h3>Protege</h3><p>Si llueve, el servomotor cierra el techo. Si escampa, lo vuelve a abrir.</p></li>
+        <li><h3>Informa</h3><p>Las lecturas viajan por WiFi a esta página para verlas desde cualquier lugar.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="seccion" id="componentes">
+    <div class="envoltura">
+      <h2>Componentes</h2>
+      <p class="intro">Hardware de bajo costo, fácil de conseguir y de reparar en la finca.</p>
+      <table class="tabla">
+        <thead><tr><th>Componente</th><th>Pin</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td>ESP32</td><td>–</td><td>Lee los sensores, mueve el techo y envía los datos por WiFi.</td></tr>
+          <tr><td>Sensor de lluvia</td><td>GPIO 32</td><td>Lectura analógica del agua sobre la placa. Más de 500 se considera lluvia.</td></tr>
+          <tr><td>DHT11</td><td>GPIO 25</td><td>Humedad relativa y temperatura del aire alrededor del secadero.</td></tr>
+          <tr><td>Servomotor</td><td>GPIO 13</td><td>Gira a 0° con lluvia y a 160° sin lluvia para mover el techo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="pie">
+  <div class="envoltura">
+    <img src="assets/nnova-logo.png" alt="Nnova S.A.S">
+    <div>
+      <p class="lema"><img src="assets/nnova-n.png" alt="N">aturaleza e innovación en perfecta armonía</p>
+      <small>CHOCO es un prototipo de Nnova S.A.S.</small>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const UMBRAL = 500;
+  const API = "/api/lecturas";
+  const $ = (id) => document.getElementById(id);
+  const escena = $("escena"), estado = $("estado"), btnSimular = $("simular");
+
+  let modo = "conectando";      // vivo | sin-senal | demo
+  let historialDemo = [];
+  let lloviendoDemo = false;
+
+  function formato(n, dec) { return n == null ? "–" : Number(n).toFixed(dec).replace(".", ","); }
+
+  function haceCuanto(fecha) {
+    const s = Math.max(0, Math.round((Date.now() - new Date(fecha)) / 1000));
+    if (s < 60) return `hace ${s} s`;
+    const m = Math.round(s / 60);
+    if (m < 60) return `hace ${m} min`;
+    return `hace ${Math.round(m / 60)} h`;
+  }
+
+  function linea(id, valores, min, max) {
+    const el = $(id);
+    const v = valores.filter((x) => x != null);
+    if (v.length < 2) { el.setAttribute("points", ""); return; }
+    const lo = min ?? Math.min(...v) - 1, hi = max ?? Math.max(...v) + 1;
+    const pts = v.map((x, i) => `${(i / (v.length - 1)) * 300},${48 - ((x - lo) / (hi - lo || 1)) * 44 - 2}`);
+    el.setAttribute("points", pts.join(" "));
+  }
+
+  function pintar(ultima, historial) {
+    const llueve = ultima ? ultima.lluvia > UMBRAL : false;
+    escena.classList.toggle("llueve", llueve);
+    $("escena-texto").textContent = llueve
+      ? "Lluvia detectada: el techo está cerrado y el cacao, protegido."
+      : "Sin lluvia: el techo está abierto y el cacao recibe sol.";
+
+    $("v-lluvia").textContent = ultima ? Math.round(ultima.lluvia) : "–";
+    $("n-lluvia").textContent = !ultima ? "Por encima de 500 se cierra el techo."
+      : llueve ? "Está lloviendo. Techo cerrado." : "Placa seca. Techo abierto.";
+    $("v-humedad").innerHTML = `${formato(ultima?.humedad, 0)}<small>%</small>`;
+    $("v-temperatura").innerHTML = `${formato(ultima?.temperatura, 1)}<small>°C</small>`;
+
+    const orden = [...historial].reverse();          // del más viejo al más nuevo
+    const maxLluvia = Math.max(1000, ...orden.map((l) => l.lluvia));
+    linea("g-lluvia", orden.map((l) => l.lluvia), 0, maxLluvia);
+    const yUmbral = 48 - (UMBRAL / maxLluvia) * 44 - 2;
+    $("umbral-linea").setAttribute("y1", yUmbral);
+    $("umbral-linea").setAttribute("y2", yUmbral);
+    linea("g-humedad", orden.map((l) => l.humedad));
+    linea("g-temperatura", orden.map((l) => l.temperatura));
+  }
+
+  function mostrarEstado(clase, titulo, detalle, conBoton) {
+    estado.className = "estado " + clase;
+    $("estado-titulo").textContent = titulo;
+    $("estado-detalle").textContent = detalle;
+    btnSimular.hidden = !conBoton;
+  }
+
+  // Modo demostración: valores simulados cuando el prototipo aún no envía datos
+  function lecturaDemo() {
+    const anterior = historialDemo[0];
+    const t = anterior ? anterior.temperatura : 27;
+    const h = anterior ? anterior.humedad : 68;
+    const lluviaBase = lloviendoDemo ? 1400 + Math.random() * 600 : 80 + Math.random() * 120;
+    const l = {
+      lluvia: Math.round(lluviaBase),
+      humedad: Math.min(95, Math.max(45, h + (lloviendoDemo ? 1.5 : -0.4) + (Math.random() - .5) * 2)),
+      temperatura: Math.min(34, Math.max(19, t + (lloviendoDemo ? -0.3 : 0.1) + (Math.random() - .5) * .4)),
+      fecha: new Date().toISOString(),
+    };
+    historialDemo.unshift(l);
+    historialDemo = historialDemo.slice(0, 40);
+    return l;
+  }
+
+  btnSimular.addEventListener("click", () => {
+    lloviendoDemo = !lloviendoDemo;
+    btnSimular.textContent = lloviendoDemo ? "Simular sol" : "Simular lluvia";
+    pintar(lecturaDemo(), historialDemo);
+  });
+
+  // ===== Conexión directa por USB (Web Serial) =====
+  // Lee lo que el ESP32 ya imprime por Serial a 9600 baudios, sin cambiar su código:
+  //   Nivel de agua: 123 / Humedad Ambiente: 65.00 / Temperatura Ambiente: 27.10 / ****
+  const btnUsb = $("usb");
+  let usbActivo = false, puerto = null, historialUsb = [];
+
+  function valor(texto) {
+    const n = parseFloat(texto);
+    return Number.isFinite(n) ? n : null;     // "nan" del DHT11 queda vacío
+  }
+
+  function nuevaLecturaUsb(l) {
+    l.fecha = new Date().toISOString();
+    historialUsb.unshift(l);
+    historialUsb = historialUsb.slice(0, 60);
+    mostrarEstado("vivo", "En vivo por USB", "Leyendo el ESP32 conectado a este computador.", false);
+    btnUsb.hidden = false;
+    btnUsb.textContent = "Desconectar";
+    pintar(l, historialUsb);
+    // Se comparte con la API para que otros que abran la página también la vean
+    fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(l) }).catch(() => {});
+  }
+
+  async function conectarUsb() {
+    try {
+      puerto = await navigator.serial.requestPort();
+      await puerto.open({ baudRate: 9600 });
+    } catch {
+      puerto = null;
+      return;   // la persona cerró la ventana de selección
+    }
+    usbActivo = true;
+    mostrarEstado("vivo", "Conectado por USB", "Esperando la primera lectura del ESP32…", false);
+    btnUsb.hidden = false;
+    btnUsb.textContent = "Desconectar";
+
+    const lector = puerto.readable.pipeThrough(new TextDecoderStream()).getReader();
+    puerto._lector = lector;
+    let buffer = "", actual = {};
+    try {
+      while (usbActivo) {
+        const { value, done } = await lector.read();
+        if (done) break;
+        buffer += value;
+        const lineas = buffer.split(/\r?\n/);
+        buffer = lineas.pop();
+        for (const linea of lineas) {
+          let m;
+          if ((m = linea.match(/Nivel de agua:\s*(\S+)/i))) actual.lluvia = valor(m[1]);
+          else if ((m = linea.match(/Humedad Ambiente:\s*(\S+)/i))) actual.humedad = valor(m[1]);
+          else if ((m = linea.match(/Temperatura Ambiente:\s*(\S+)/i))) actual.temperatura = valor(m[1]);
+          else if (linea.includes("****") && actual.lluvia != null) {
+            nuevaLecturaUsb(actual);
+            actual = {};
+          }
+        }
+      }
+    } catch {
+      /* cable desconectado */
+    }
+    await desconectarUsb();
+  }
+
+  async function desconectarUsb() {
+    usbActivo = false;
+    try { await puerto?._lector?.cancel(); } catch {}
+    try { await puerto?.close(); } catch {}
+    puerto = null;
+    btnUsb.textContent = "Conectar CHOCO por USB";
+    actualizar();
+  }
+
+  if ("serial" in navigator) {
+    btnUsb.addEventListener("click", () => (usbActivo ? desconectarUsb() : conectarUsb()));
+  }
+
+  async function actualizar() {
+    if (usbActivo) return;      // mientras el USB esté conectado, manda el USB
+    btnUsb.hidden = !("serial" in navigator);
+    try {
+      const r = await fetch(API, { cache: "no-store" });
+      if (!r.ok) throw new Error();
+      const datos = await r.json();
+      if (!datos.ultima) throw new Error("vacío");
+
+      const segundos = (Date.now() - new Date(datos.ultima.fecha)) / 1000;
+      if (segundos < 60) {
+        modo = "vivo";
+        mostrarEstado("vivo", "En vivo", `Última lectura ${haceCuanto(datos.ultima.fecha)}.`, false);
+      } else {
+        modo = "sin-senal";
+        mostrarEstado("sin-senal", "Prototipo desconectado",
+          `La última lectura llegó ${haceCuanto(datos.ultima.fecha)}. Revisa la energía y el WiFi del ESP32.`, false);
+      }
+      pintar(datos.ultima, datos.historial);
+    } catch {
+      modo = "demo";
+      mostrarEstado("demo", "Modo demostración",
+        ("serial" in navigator)
+          ? "El prototipo aún no ha enviado lecturas por WiFi. Puedes conectarlo por USB o ver estos valores simulados."
+          : "El prototipo aún no ha enviado lecturas por WiFi, así que ves valores simulados.", true);
+      pintar(lecturaDemo(), historialDemo);
+    }
+  }
+
+  for (let i = 0; i < 12; i++) lecturaDemo();
+  actualizar();
+  setInterval(actualizar, 3000);
+})();
+</script>
+</body>
+</html>
