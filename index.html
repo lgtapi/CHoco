@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CHOCO · Nnova S.A.S</title>
-<meta name="description" content="CHOCO, el secadero de cacao de Nnova S.A.S que se cubre solo cuando llueve. Lecturas en vivo de lluvia, humedad y temperatura.">
+<meta name="description" content="CHOCO, el secadero de cacao de Nnova S.A.S que guarda el grano solo cuando llueve. Lecturas en vivo de lluvia, humedad y temperatura.">
 <link rel="icon" type="image/png" href="assets/choco-icono.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,8 +97,8 @@
   .llueve .punto { background: var(--lluvia); }
   #cielo { transition: fill .8s ease; }
   .llueve #cielo { fill: var(--cielo-lluvia); }
-  #techo { transform-origin: 120px 132px; transform: rotate(-62deg); transition: transform 1.4s cubic-bezier(.6,.05,.2,1); }
-  .llueve #techo { transform: rotate(0deg); }
+  #bandeja { transform: translateX(0); transition: transform 1.6s cubic-bezier(.6,.05,.2,1); }
+  .llueve #bandeja { transform: translateX(-216px); }
   #sol { transition: opacity .8s; }
   .llueve #sol { opacity: 0; }
   #gotas, #nube { opacity: 0; transition: opacity .8s; }
@@ -198,7 +198,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    #techo, #cielo, #sol, #gotas, #nube { transition: none; }
+    #bandeja, #cielo, #sol, #gotas, #nube { transition: none; }
     .gota { animation: none; }
   }
 </style>
@@ -218,14 +218,14 @@
   <section class="envoltura hero">
     <div>
       <div class="marca"><img src="assets/choco-logo.jpg" width="640" height="640" alt="CHOCO"></div>
-      <h1>El secadero de cacao que se cubre solo cuando llueve.</h1>
-      <p>Un sensor detecta las primeras gotas y un servomotor cierra el techo antes de que el grano se moje. Mientras tanto, CHOCO mide la humedad y la temperatura del aire para cuidar cada lote.</p>
+      <h1>El secadero de cacao que guarda el grano solo cuando llueve.</h1>
+      <p>Un sensor detecta las primeras gotas y un servomotor mete la bandeja del cacao bajo techo antes de que el grano se moje. Cuando escampa, la saca otra vez al sol. Mientras tanto, CHOCO mide la humedad y la temperatura del aire para cuidar cada lote.</p>
       <a class="boton" href="#lecturas">Ver lecturas en vivo</a>
     </div>
 
     <figure class="escena" id="escena">
       <svg viewBox="0 0 520 380" role="img" aria-labelledby="escena-titulo">
-        <title id="escena-titulo">Secadero de cacao con techo móvil</title>
+        <title id="escena-titulo">Secadero de cacao con bandeja móvil</title>
         <rect id="cielo" width="520" height="380" fill="var(--cielo-sol)"/>
         <g id="sol">
           <circle cx="420" cy="78" r="34" fill="var(--mazorca)"/>
@@ -251,31 +251,30 @@
         </g>
         <!-- suelo -->
         <rect y="318" width="520" height="62" fill="#c9b8a6"/>
-        <!-- postes -->
-        <rect x="112" y="132" width="14" height="190" fill="var(--cacao)"/>
-        <rect x="438" y="132" width="14" height="190" fill="var(--cacao)"/>
-        <!-- cama de secado -->
-        <rect x="100" y="250" width="364" height="16" rx="3" fill="var(--cacao)"/>
-        <g fill="var(--cacao-claro)">
-          <ellipse cx="130" cy="244" rx="11" ry="7"/><ellipse cx="154" cy="246" rx="11" ry="7"/><ellipse cx="178" cy="243" rx="11" ry="7"/>
-          <ellipse cx="202" cy="246" rx="11" ry="7"/><ellipse cx="226" cy="243" rx="11" ry="7"/><ellipse cx="250" cy="246" rx="11" ry="7"/>
-          <ellipse cx="274" cy="243" rx="11" ry="7"/><ellipse cx="298" cy="246" rx="11" ry="7"/><ellipse cx="322" cy="243" rx="11" ry="7"/>
-          <ellipse cx="346" cy="246" rx="11" ry="7"/><ellipse cx="370" cy="243" rx="11" ry="7"/><ellipse cx="394" cy="246" rx="11" ry="7"/>
-          <ellipse cx="418" cy="243" rx="11" ry="7"/><ellipse cx="438" cy="246" rx="9" ry="6"/>
-          <ellipse cx="142" cy="236" rx="10" ry="6"/><ellipse cx="190" cy="235" rx="10" ry="6"/><ellipse cx="238" cy="236" rx="10" ry="6"/>
-          <ellipse cx="286" cy="235" rx="10" ry="6"/><ellipse cx="334" cy="236" rx="10" ry="6"/><ellipse cx="382" cy="235" rx="10" ry="6"/>
+        <!-- caseta con techo fijo -->
+        <rect x="40" y="148" width="190" height="170" fill="#e9dfd5"/>
+        <rect x="40" y="148" width="12" height="170" fill="var(--cacao)"/>
+        <rect x="218" y="148" width="12" height="170" fill="var(--cacao)"/>
+        <path d="M22 150 L135 110 L248 150 Z" fill="var(--tinta)"/>
+        <!-- caja del ESP32 y servomotor -->
+        <rect x="62" y="168" width="40" height="28" rx="5" fill="var(--tinta)"/>
+        <circle cx="82" cy="214" r="8" fill="var(--tinta)"/>
+        <!-- riel por donde corre la bandeja -->
+        <rect x="40" y="268" width="440" height="6" rx="2" fill="var(--cacao)"/>
+        <rect x="468" y="274" width="10" height="44" fill="var(--cacao)"/>
+        <rect x="140" y="274" width="10" height="44" fill="var(--cacao)"/>
+        <!-- bandeja con el cacao (la mueve el servomotor) -->
+        <g id="bandeja">
+          <rect x="262" y="252" width="184" height="16" rx="3" fill="var(--cacao)"/>
+          <g fill="var(--cacao-claro)">
+            <ellipse cx="276" cy="246" rx="10" ry="6"/><ellipse cx="298" cy="247" rx="10" ry="6"/><ellipse cx="320" cy="245" rx="10" ry="6"/>
+            <ellipse cx="342" cy="247" rx="10" ry="6"/><ellipse cx="364" cy="245" rx="10" ry="6"/><ellipse cx="386" cy="247" rx="10" ry="6"/>
+            <ellipse cx="408" cy="245" rx="10" ry="6"/><ellipse cx="430" cy="247" rx="10" ry="6"/>
+            <ellipse cx="287" cy="239" rx="9" ry="5"/><ellipse cx="331" cy="238" rx="9" ry="5"/><ellipse cx="375" cy="239" rx="9" ry="5"/><ellipse cx="419" cy="238" rx="9" ry="5"/>
+          </g>
         </g>
-        <!-- caja del ESP32 y servo -->
-        <rect x="70" y="150" width="36" height="28" rx="5" fill="var(--tinta)"/>
-        <circle cx="120" cy="132" r="10" fill="var(--tinta)"/>
-        <!-- techo móvil (lo mueve el servo) -->
-        <g id="techo">
-          <rect x="120" y="122" width="336" height="14" rx="4" fill="var(--tinta)"/>
-          <rect x="120" y="136" width="336" height="5" fill="#3b3b3b"/>
-        </g>
-        <circle cx="120" cy="132" r="4" fill="#fff"/>
       </svg>
-      <figcaption><span class="punto" aria-hidden="true"></span><span id="escena-texto">Sin lluvia: el techo está abierto y el cacao recibe sol.</span></figcaption>
+      <figcaption><span class="punto" aria-hidden="true"></span><span id="escena-texto">Sin lluvia: la bandeja está afuera y el cacao recibe sol.</span></figcaption>
     </figure>
   </section>
 
@@ -295,7 +294,7 @@
         <article class="lectura">
           <h3>Sensor de lluvia</h3>
           <div class="valor" id="v-lluvia">–</div>
-          <p class="nota" id="n-lluvia">Por encima de 500 se cierra el techo.</p>
+          <p class="nota" id="n-lluvia">Por encima de 500 se guarda la bandeja.</p>
           <svg viewBox="0 0 300 48" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="300" id="umbral-linea" stroke="var(--linea)" stroke-dasharray="4 4"/><polyline id="g-lluvia" fill="none" stroke="var(--lluvia)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
         </article>
         <article class="lectura">
@@ -321,7 +320,7 @@
       <ol class="pasos">
         <li><h3>Mide</h3><p>El sensor de lluvia y el DHT11 leen el agua, la humedad y la temperatura.</p></li>
         <li><h3>Decide</h3><p>El ESP32 compara la lectura de lluvia con el umbral de 500.</p></li>
-        <li><h3>Protege</h3><p>Si llueve, el servomotor cierra el techo. Si escampa, lo vuelve a abrir.</p></li>
+        <li><h3>Protege</h3><p>Si llueve, el servomotor mete la bandeja bajo techo. Si escampa, la vuelve a sacar al sol.</p></li>
         <li><h3>Informa</h3><p>Las lecturas viajan por WiFi a esta página para verlas desde cualquier lugar.</p></li>
       </ol>
     </div>
@@ -334,10 +333,10 @@
       <table class="tabla">
         <thead><tr><th>Componente</th><th>Pin</th><th>Función</th></tr></thead>
         <tbody>
-          <tr><td>ESP32</td><td>–</td><td>Lee los sensores, mueve el techo y envía los datos por WiFi.</td></tr>
+          <tr><td>ESP32</td><td>–</td><td>Lee los sensores, mueve la bandeja y envía los datos por WiFi.</td></tr>
           <tr><td>Sensor de lluvia</td><td>GPIO 32</td><td>Lectura analógica del agua sobre la placa. Más de 500 se considera lluvia.</td></tr>
           <tr><td>DHT11</td><td>GPIO 25</td><td>Humedad relativa y temperatura del aire alrededor del secadero.</td></tr>
-          <tr><td>Servomotor</td><td>GPIO 13</td><td>Gira a 0° con lluvia y a 160° sin lluvia para mover el techo.</td></tr>
+          <tr><td>Servomotor</td><td>GPIO 13</td><td>Gira a 0° con lluvia y a 160° sin lluvia para mover la bandeja.</td></tr>
         </tbody>
       </table>
     </div>
@@ -388,12 +387,12 @@
     const llueve = ultima ? ultima.lluvia > UMBRAL : false;
     escena.classList.toggle("llueve", llueve);
     $("escena-texto").textContent = llueve
-      ? "Lluvia detectada: el techo está cerrado y el cacao, protegido."
-      : "Sin lluvia: el techo está abierto y el cacao recibe sol.";
+      ? "Lluvia detectada: la bandeja está bajo techo y el cacao, protegido."
+      : "Sin lluvia: la bandeja está afuera y el cacao recibe sol.";
 
     $("v-lluvia").textContent = ultima ? Math.round(ultima.lluvia) : "–";
-    $("n-lluvia").textContent = !ultima ? "Por encima de 500 se cierra el techo."
-      : llueve ? "Está lloviendo. Techo cerrado." : "Placa seca. Techo abierto.";
+    $("n-lluvia").textContent = !ultima ? "Por encima de 500 se guarda la bandeja."
+      : llueve ? "Está lloviendo. Bandeja bajo techo." : "Placa seca. Bandeja al sol.";
     $("v-humedad").innerHTML = `${formato(ultima?.humedad, 0)}<small>%</small>`;
     $("v-temperatura").innerHTML = `${formato(ultima?.temperatura, 1)}<small>°C</small>`;
 
